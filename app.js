@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie"];
+var collections = ["movie","genre","translations","reviews"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 app.use(express.static(__dirname + '/static'));
@@ -36,10 +36,50 @@ app.get('/raw_movie/:id', function(req,res){
 	});
 });	
 
-app.get('/genre/findAll') {
-	return all the genre present 
-}
+//returns all the genres present in movie database
+app.get('/allgenres',function(req,res) {
+	db.genre.find({},function(err,data){
+		console.log(data);
+		if(err){
+			console.log("Error getting all genres..!");
+			console.log(err);
+		}
+		res.send(JSON.stringify({genre: data}));
+	});
 
+});
+
+//returns all the movies in particular genre on disk
+//Input - genre id
+//output find the movies from movie collection and returns as json data
+app.get('/genre/:id',function(req,res){
+	var genreId = req.params.id;
+	var searchId = '{' + '"genres.id"' + ':' + genreId + '}';
+    console.log(searchId);
+	db.movie.find(JSON.parse(searchId) ,function(err,data){
+		console.log(data);
+		res.send(JSON.stringify({genrem: data}));
+	});
+});
+
+//input - movie id
+app.get('/translations/:id', function (req,res) {
+	var movieId = req.params.id;
+	var searchId = '{' + '"id"' + ':' + movieId + '}';
+ 	db.translations.find(JSON.parse(searchId),function(err,data){
+		console.log(data);
+		res.send(JSON.stringify({translations:data}));
+	});
+});
+
+app.get('/reviews/:id',function (req,res){
+	var movieId = req.params.id;
+	var searchId = '{' + '"id"' + ':' + movieId + '}';
+	db.reviews.find(JSON.parse(searchId),function(err,data){
+		console.log(data);
+		res.send(JSON.stringify({translations:data}));
+	});
+});
 
 var server = app.listen(3000, function () {
 
