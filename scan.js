@@ -1,7 +1,7 @@
 var mdb = require('moviedb')('fb92666a2288e824aaa575b983c6e182');
 var fs = require('fs');
 var databaseUrl = 'mongodb://localhost:27017/moviedb';
-var collections = ["movie","genre","translations","reviews"]
+var collections = ["movie","genre","translations","reviews","trailers"]
 var db = require("mongojs").connect(databaseUrl, collections);
 var exec = require('child_process').exec ;
 var folder;
@@ -70,13 +70,38 @@ function processFileName(fileName) {
                 var dest = 'static/videos/' + res.results[i].id + '.mp4';
                 child = exec('ln -s "' + source + '" "' + dest + '"');
 
-                //db.movie.save(res.results[i]);
                 mdb.movieInfo({id: movie_id },function(err,res){
                     db.movie.save(res);
                 });
 
+                //retrieve Youtube link for movie trailer
+                mdb.movieTrailers({id: movie_id },function(err,res){
+                    var trailers = {};
+
+                    var base_url = "http://www.youtube.com/embed/";
+                    var numOfTrailers = res.youtube.length;
+
+                    if( numOfTrailers > 0) {
+                        trailers.id = movie_id;
+                        trailers.videos = [];
+                    }
+
+                    for (var i = 0; i < numOfTrailers ; i++) {
+                        var youtube_id = res.youtube[i].source;
+                        var url = base_url + youtube_id;
+                        trailers.videos.push ({
+                            "url" : url,
+                            "type" : res.youtube[i].type
+                        });
+
+                    }
+                    console.log("Trailers:::",trailers);
+                    db.trailers.save(trailers);
+                });
+
+                //retrieve top 5 simialr movies based on rating
                 mdb.movieSimilar({id: movie_id },function(err,res){
-                    db.movie.save(res);
+                    
                 });
 
 

@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie","genre","translations","reviews"];
+var collections = ["movie","genre","translations","reviews","trailers"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 app.use(express.static(__dirname + '/static'));
@@ -25,6 +25,15 @@ app.get('/movies/:id', function(req,res){
 	//res.send("Hello World ID ", id);
 });
 
+// return movie trailers
+app.get('/trailers/:id', function(req,res){
+	var movieId = req.params.id;
+
+	db.trailers.find({id: parseInt(movieId)} ,function(err,data){
+		res.send(JSON.stringify({movies : data[0]} ));
+	});
+});
+
 app.get('/raw_movie/:id', function(req,res){
 	var movieId = req.params.id;
 	var path = "/home/gayathri/movies/Ice Age (2002).mp4"
@@ -36,6 +45,15 @@ app.get('/raw_movie/:id', function(req,res){
 	});
 });	
 
+app.get('/movie/:id', function(req,res){
+	var movieId = req.params.id;
+	var searchId = '{' + '"id"' + ':' + movieId + '}';
+	db.movie.find(JSON.parse(searchId) ,function(err,data){
+		console.log("-------------",data);
+		res.send(JSON.stringify({movies : data} ));
+
+	});
+});
 //returns all the genres present in movie database
 app.get('/allgenres',function(req,res) {
 	db.genre.find({},function(err,data){
