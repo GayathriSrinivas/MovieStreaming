@@ -4,7 +4,7 @@ $( document ).ready(function() {
 	//getMovieList();
 });
 
-<<<<<<< HEAD
+
 function getMovies(){
 	$.get('/movies',function(data){
 		var movies = JSON.parse(data);
@@ -29,8 +29,7 @@ function getMovies(){
 		}
 	});
 }
-=======
->>>>>>> b6d5ef70face740b1a2678a64a1e114d3b0a3b42
+
 function getMovieTrailer() {
 	//Sample request will trigger movie with id to play : http://localhost:3000/trailer.html#id
 	var id = window.location.href.split("#")[1];
@@ -86,3 +85,4 @@ function getAllGenre(){
 	}
 	
 });
+}
