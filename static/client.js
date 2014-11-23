@@ -1,4 +1,14 @@
 
+function getMovieTrailer() {
+	//Sample request will trigger movie with id to play : http://localhost:3000/trailer.html#id
+	var id = window.location.href.split("#")[1];
+	var url = "/trailers/" + id;
+	$.get(url,function(data){
+		var movies = JSON.parse(data);
+		movies = movies.movies;;
+		$("#movieTrailer").attr('src',movies.videos[0].url);
+	});
+}
 
 function getMovieList() {
 	$.get('/movies',function(data){
@@ -28,7 +38,7 @@ function getMovieDetails() {
 		movies = movies.movie_details;
 		$("#movieDesc").html(movies.vidoeDesc);
 		$("#movieVideo").html('<source src="' + videoUrl + '" type="video/mp4"></source>');
-		$('#movieVideo').get(0).play()
-		console.log("Dec....",movies.vidoeDesc)
+		$('#movieVideo').get(0).play();
+		console.log("Dec....",movies.vidoeDesc);
 	});
 }
