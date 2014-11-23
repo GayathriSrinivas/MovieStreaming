@@ -97,13 +97,20 @@ function processFileName(fileName) {
                     }
                     console.log("Trailers:::",trailers);
                     db.trailers.save(trailers);
+<<<<<<< HEAD
+                });
+
+                //retrieve top 5 simialr movies based on rating
+                mdb.movieSimilar({id: movie_id },function(err,res){
+                    
+=======
+>>>>>>> b6d5ef70face740b1a2678a64a1e114d3b0a3b42
                 });
 
                 //retrieve top 5 simialr movies based on rating
                 mdb.movieSimilar({id: movie_id },function(err,res){
                     
                 });
-
 
                 //retrieve and store list of available translations for a movie
                 mdb.movieTranslations({id: movie_id},function(err,res){

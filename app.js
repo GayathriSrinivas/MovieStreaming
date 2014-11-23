@@ -18,7 +18,7 @@ app.get('/movies', function (req, res) {
 app.get('/movies/:id', function(req,res){
 	var id = req.params.id;
 	var movie_details = {
-		videoUrl : "/raw_movie/" + id,
+		videoUrl : "/raw_omvie/" + id,
 		vidoeDesc : "Ice Age !!"
 	}
 	res.send(JSON.stringify({movie_details : movie_details}));
