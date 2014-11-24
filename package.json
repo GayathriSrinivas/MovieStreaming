@@ -1,0 +1,23 @@
+{
+  "name": "Media_Server",
+  "version": "1.0.0",
+  "description": "Stream Local Media Over Network",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GayathriSrinivas/MovieStreaming.git"
+  },
+  "author": "Gayathri_Srinivasan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GayathriSrinivas/MovieStreaming/issues"
+  },
+  "homepage": "https://github.com/GayathriSrinivas/MovieStreaming",
+  "dependencies": {
+    "express": "^4.10.2",
+    "hashtable": "^0.5.2"
+  }
+}
