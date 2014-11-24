@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie","genre","translations","reviews","trailers"];
+var collections = ["movie","genre","translations","reviews","images"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 app.use(express.static(__dirname + '/static'));
@@ -18,20 +18,11 @@ app.get('/movies', function (req, res) {
 app.get('/movies/:id', function(req,res){
 	var id = req.params.id;
 	var movie_details = {
-		videoUrl : "/raw_omvie/" + id,
+		videoUrl : "/raw_movie/" + id,
 		vidoeDesc : "Ice Age !!"
 	}
 	res.send(JSON.stringify({movie_details : movie_details}));
 	//res.send("Hello World ID ", id);
-});
-
-// return movie trailers
-app.get('/trailers/:id', function(req,res){
-	var movieId = req.params.id;
-
-	db.trailers.find({id: parseInt(movieId)} ,function(err,data){
-		res.send(JSON.stringify({movies : data[0]} ));
-	});
 });
 
 app.get('/raw_movie/:id', function(req,res){
@@ -45,15 +36,6 @@ app.get('/raw_movie/:id', function(req,res){
 	});
 });	
 
-app.get('/movie/:id', function(req,res){
-	var movieId = req.params.id;
-	var searchId = '{' + '"id"' + ':' + movieId + '}';
-	db.movie.find(JSON.parse(searchId) ,function(err,data){
-		console.log("-------------",data);
-		res.send(JSON.stringify({movies : data} ));
-
-	});
-});
 //returns all the genres present in movie database
 app.get('/allgenres',function(req,res) {
 	db.genre.find({},function(err,data){
@@ -90,6 +72,7 @@ app.get('/translations/:id', function (req,res) {
 	});
 });
 
+//this api returns the reviews for particular movie
 app.get('/reviews/:id',function (req,res){
 	var movieId = req.params.id;
 	var searchId = '{' + '"id"' + ':' + movieId + '}';
@@ -98,6 +81,32 @@ app.get('/reviews/:id',function (req,res){
 		res.send(JSON.stringify({translations:data}));
 	});
 });
+
+//this api returns posters for a specific movie and specific language
+//input sample url:- http://127.0.0.1:3000/movie/posters/45269/fr
+/*
+* There can be more than one poster for any movie and language of different dimensions.
+* The front end designer has to choose among many different dimensions available
+* */
+app.get('/movie/posters/:id/:lang', function(req,res){
+	var movieId = req.params.id;
+	var lang = req.params.lang;
+	var searchId = '{' + '"id"' + ':' + movieId + '}';
+	db.images.find(JSON.parse(searchId),function(err,data){
+		//var data1 = 'data:'+data;
+		var result =[];
+		var j=0;
+		var posters = data[0].posters;
+		for(var i=0;i< posters.length;i++ ){
+			if (posters[i].iso_639_1 === lang){
+				result[j] = posters[i];
+				j++;
+			}
+		}
+		res.send(JSON.stringify({posters:result}))
+	});
+});
+
 
 var server = app.listen(3000, function () {
 
