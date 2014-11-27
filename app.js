@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie","genre","translations","reviews","trailers"];
+var collections = ["movie","genre","translations","reviews","trailers","tvShow","tvShowCollection","tvSeasons"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 app.use(express.static(__dirname + '/static'));
@@ -57,7 +57,6 @@ app.get('/movie/:id', function(req,res){
 //returns all the genres present in movie database
 app.get('/allgenres',function(req,res) {
 	db.genre.find({},function(err,data){
-		console.log(data);
 		if(err){
 			console.log("Error getting all genres..!");
 			console.log(err);
@@ -99,6 +98,60 @@ app.get('/reviews/:id',function (req,res){
 	});
 });
 
+app.get('/tvShows', function (req, res) {
+	db.tvShow.find({} ,function(err,data){
+		console.log("-------------",data.length);
+		res.send(JSON.stringify({tvShows : data} ));
+
+	});
+});
+
+app.get('/tvShows/:id/seasons', function (req, res) {
+	var tvShowID = parseInt(req.params.id);
+	console.log("TVShow ID::", tvShowID);
+
+	db.tvShowCollection.distinct('tvShowSeason', {tvShowID : tvShowID}, function(err,data){
+		console.log("Seasons::",data);
+
+		var tvShowSeason = data;
+
+		db.tvShow.find({id : tvShowID} ,function(err,data){
+			var tv_season_info = {
+				seasons_present : tvShowSeason,
+				season_info : data[0]
+			}
+			console.log(tvShowSeason);
+			res.send(JSON.stringify({tvShowSeason : tv_season_info} ));
+		});
+	});
+});
+
+
+
+app.get('/tvShows/:id/seasons/:seasonNum', function (req, res) {
+
+	var tvShowId = parseInt(req.params.id);
+	var seasonNum = parseInt(req.params.seasonNum);
+
+	console.log(tvShowId, "::", seasonNum);
+	db.tvShowCollection.distinct('tvShowEpisode', {tvShowID : tvShowId, tvShowSeason : seasonNum}, function(err,data){
+
+		var tvShowEpisodes = data;
+
+		db.tvSeasons.find({tvShowID : tvShowId, season_number: seasonNum}, function(err,data){
+
+			var tv_episodes_info = {
+				episodes_present : tvShowEpisodes,
+				episodes_info : data[0]
+			}
+			console.log(tv_episodes_info);
+			res.send(JSON.stringify({tvShowEpisodes : tv_episodes_info} ));
+
+		});
+	});
+
+});
+
 var server = app.listen(3000, function () {
 
   var host = server.address().address
@@ -106,5 +159,4 @@ var server = app.listen(3000, function () {
 
   console.log('Example app listening at http://%s:%s', host, port)
 
-})
-
+});
