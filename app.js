@@ -152,6 +152,17 @@ app.get('/tvShows/:id/seasons/:seasonNum', function (req, res) {
 
 });
 
+app.get('/tvShows/:id/seasons/:seasonNum/episodes/:episodeNum', function (req, res) {
+	var tvShowId = parseInt(req.params.id);
+	var seasonNum = parseInt(req.params.seasonNum);
+	var episodeNum = parseInt(req.params.episodeNum);
+
+	db.tvSeasons.find({tvShowID : tvShowId, season_number: seasonNum}, function(err,data){
+		console.log(data[0].tvShowEpisodes.episodes_info.season_info.episodes)
+		//res.send(JSON.stringify({tvShowEpisodes : tv_episodes_info} ));
+	});
+});
+
 var server = app.listen(3000, function () {
 
   var host = server.address().address

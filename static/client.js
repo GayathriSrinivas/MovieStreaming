@@ -60,6 +60,7 @@ function getMovieList() {
 function getTvShowsList() {
 	$.get('/tvShows',function(data){
 		var tv = JSON.parse(data);
+		console.log(tv);
 		tvShows = tv.tvShows;
 		for (var i = 0 ; i<tvShows.length ; i++) {
 			var wstr = "";
@@ -165,6 +166,22 @@ function getTvShowsEpisodesList() {
 	});
 }
 
+function getTvEpisodeDetails() {
+	var id = window.location.href.split("#")[1];
+	var url = "/movies/" + id;
+	 
+	var videoUrl = '/tvShows/abc' ;
+
+	$.get(url,function(data){
+		console.log("data", data);
+		var movies = JSON.parse(data);
+		movies = movies.movie_details;
+		$("#tvDesc").html(movies.vidoeDesc);
+		$("#tvShow").html('<source src="' + videoUrl + '"></source>');
+		$('#tvShow').get(0).play();
+		console.log("Dec....",movies.vidoeDesc);
+	});
+}
 
 function getMovieDetails() {
 	var id = window.location.href.split("#")[1];
@@ -182,6 +199,7 @@ function getMovieDetails() {
 		console.log("Dec....",movies.vidoeDesc);
 	});
 }
+
 function getAllGenre(){
 	var url= '/allgenres'
 	$.get(url,function(data){
