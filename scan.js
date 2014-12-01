@@ -3,7 +3,7 @@ var fs = require('fs');
 //var request = require('request');
 //var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
 var databaseUrl = 'mongodb://localhost:27017/moviedb';
-var collections = ["movie","genre","translations","reviews","images"]
+var collections = ["movie", "genre", "translations", "reviews", "images","similar","toprated"]
 var db = require("mongojs").connect(databaseUrl, collections);
 var folder;
 
@@ -62,6 +62,7 @@ function processFileName(fileName) {
 
             var release_date = res.results[i].release_date;
             var release_year = release_date.split("-")[i];
+            var id = res.results[i].id;
 
             if (i == 0) {
                 console.log(res.results[0]);
@@ -78,31 +79,43 @@ function processFileName(fileName) {
                 //res.results[i].fileName = folderPath + "/" + fileName;
 
                 //db.movie.save(res.results[i]);
-                mdb.movieInfo({id: res.results[i].id},function(err,res){
-                    console.log(res);
+                mdb.movieInfo({id: res.results[i].id}, function (err, res) {
+                //    console.log(res);
                     db.movie.save(res);
                 });
 
-
-
+            /*    mdb.movieInfo({id: res.results[i].id, language: 'pt'}, function(er,res){
+                    db.movie.save(res);
+                });*/
                 //retrieve and store list of available translations
-                mdb.movieTranslations({id: res.results[i].id},function(err,res){
-                    console.log(res);
+                mdb.movieTranslations({id: res.results[i].id}, function (err, res) {
+                  //  console.log(res);
                     db.translations.save(res);
                 });
 
                 //retrieve and store all available images(backdrop and posters) for specific movie
-                mdb.movieImages({id: res.results[i].id }, function(err,res) {
-                    console.log(res);
+                mdb.movieImages({id: res.results[i].id}, function (err, res) {
+                   // console.log(res);
                     db.images.save(res);
                 });
 
                 //db.close()
                 console.log("years are the same for " + fileName);
 
-                mdb.movieReviews({id:res.results[i].id},function(err,res){
-                    console.log(res);
+                mdb.movieReviews({id: res.results[i].id}, function (err, res) {
+                    //console.log(res);
                     db.reviews.save(res);
+                });
+
+                mdb.movieSimilar({id: res.results[i].id}, function(err,res){
+                    res.id = id;
+                 //   console.log(res);
+                    db.similar.save(res);
+                });
+
+                mdb.miscTopRatedMovies({}, function(err,res){
+                    console.log(res);
+                    db.toprated.save(res);
                 });
                 break;
             }
@@ -113,20 +126,20 @@ function processFileName(fileName) {
 //this method gets all the genres present and stores it in mongodb
 function getAllGenre() {
     mdb.genreList({}, function (err, res) {
-        for (var i=0;i< res.genres.length;i++){
+        for (var i = 0; i < res.genres.length; i++) {
             //console.log(res);
-            db.genre.save(res.genres[i], function(err, saved){
-                if(err || !saved) {
+            db.genre.save(res.genres[i], function (err, saved) {
+                if (err || !saved) {
                     console.log("Error.Genre not updated in collection!!");
                     console.log(err);
                     db.close();
                 }
                 else
                     console.log("Genre updated in database");
-            //db.close
+                //db.close
             });
         }
-          //  console.log("hello", res);
+        //  console.log("hello", res);u
     });
 }
 

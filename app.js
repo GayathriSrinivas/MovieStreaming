@@ -1,9 +1,10 @@
+var mdb = require('moviedb')('fb92666a2288e824aaa575b983c6e182');
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie","genre","translations","reviews","images"];
+var collections = ["movie","genre","translations","reviews","images","similar","toprated"];
 var db = require("mongojs").connect(databaseUrl, collections);
-
+var us = require("underscore");
 app.use(express.static(__dirname + '/static'));
 
 
@@ -27,14 +28,28 @@ app.get('/movies/:id', function(req,res){
 
 app.get('/raw_movie/:id', function(req,res){
 	var movieId = req.params.id;
-	var path = "/home/gayathri/movies/Ice Age (2002).mp4"
-	res.send(read(path));
+//	var path = "/home/gayathri/movies/Ice Age (2002).mp4"
+//	res.send(read(path));
 	db.movie.find({id: movieId} ,function(err,data){
 		console.log("-------------",data);
 		res.send(JSON.stringify({movies : data} ));
 
 	});
 });	
+
+// return movie information according to particular locale
+app.get('/movie/:id/:lang',function(req,res){
+	var movieId = req.params.id;
+	var lang = req.params.lang;
+	var searchId = '{' + '"id":' + movieId  + ',"language":"' + lang + '"}';
+	console.log(searchId);
+	mdb.movieInfo(JSON.parse(searchId), function(err,data){
+		console.log(data);
+		var d = [];
+		d.push(data);
+		res.send(JSON.stringify({movies: d}));
+	})
+});
 
 //returns all the genres present in movie database
 app.get('/allgenres',function(req,res) {
@@ -47,6 +62,27 @@ app.get('/allgenres',function(req,res) {
 		res.send(JSON.stringify({genre: data}));
 	});
 
+});
+
+//returns the list of genres on disk
+app.get('/genresOnDisk', function(req,res){
+	db.movie.find({}, function(err,data){
+		var numOfMovies = data.length;
+		var allGenres = [];
+		for (var i=0;i< numOfMovies;i++){
+			var numGenres = data[i].genres.length;
+			for (var j=0;j< numGenres;j++){
+				allGenres.push(data[i].genres[j].name);
+			}
+	 	//console.log(data[i].genres.length);
+		}
+	var unique = allGenres.filter(function onlyUnique(value, index, self) {
+		return self.indexOf(value) === index;
+	});
+		//console.log(allGenres);
+		res.send(JSON.stringify({genres: unique}));
+		console.log(unique);
+	})
 });
 
 //returns all the movies in particular genre on disk
@@ -107,9 +143,39 @@ app.get('/movie/posters/:id/:lang', function(req,res){
 	});
 });
 
+/*
+* This api will return all the similar movies for a given movie id
+ */
+
+app.get('/movie/similar/:id', function(req,res){
+	var movieId = req.params.id;
+	var searchId = '{' + '"id"' + ':' + movieId + "}";
+	console.log(searchId);
+	db.similar.find(JSON.parse(searchId),function(err,data){
+	/*	var result = [];
+		for(var i=0;i< data.length;i++){
+			result[i] = data[0].results;
+		}
+	*/
+			res.send(JSON.stringify({similar:data[0].results}));
+	});
+});
+/*
+* This api will get the  top rated movies
+ */
+app.get('/movie/toprated', function(req,res){
+	db.toprated.find({}, function(err,data){
+		console.log(data);
+		res.send(data);
+	});
+});
+
+/*app.get('/movie/id', function(req,res){
+
+});*/
+
 
 var server = app.listen(3000, function () {
-
   var host = server.address().address
   var port = server.address().port
 
