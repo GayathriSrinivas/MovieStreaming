@@ -43,6 +43,7 @@ function parseTvShow(fileName) {
 	tvshow = fileName.match(tvShowRegex);
 
 
+
 	if(tvshow.length < 5) {
 		console.log("fileName:: ",fileName,"does not comply to standards");
 	} else {
@@ -74,10 +75,11 @@ function parseTvShow(fileName) {
                     Stores a soft link of the tv Show source into the
                     static folder in the web server for video streaming
                 */
+/*
                 var source = folderPath + "/" + fileName;
                 var dest = 'static/tvShows/' + tvShowInfo.tvShowID + "_" + tvShowInfo.tvShowSeason + "_" + tvShowInfo.tvShowEpisode ;
                 child = exec('ln -s "' + source + '" "' + dest + '"');
-
+*/
 
 				db.saveTvCollection(tvShowInfo);
 
@@ -114,10 +116,11 @@ function parseTvShow(fileName) {
 	}
 }
 
+/*
 var folderPath = getFolderPath();
 printFileNamesInFolder(folderPath);
+*/
 
-/*
 parseTvShow("The Big Bang Theory - s01e01.mkv")
 parseTvShow("The Big Bang Theory - s02e01.mkv")
 parseTvShow("The Big Bang Theory - s02e04.mkv")
@@ -127,4 +130,8 @@ parseTvShow("Castle - s04e02.mkv");
 parseTvShow("Castle - s02e03.mkv");
 parseTvShow("Castle - s03e03.mkv");
 parseTvShow("Castle - s04e03.mkv");
-*/
+parseTvShow("Friends - s04e03.mkv");
+parseTvShow("Episodes - s01e02.mkv");
+parseTvShow("Breaking Bad - s01e01.mkv");
+parseTvShow("Game Of Thrones  - s01e01.mkv");
+

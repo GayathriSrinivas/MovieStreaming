@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie","genre","translations","reviews","trailers","tvShow","tvShowCollection","tvSeasons","episodes"];
+var collections = ["movie","genre","translations","reviews","trailers","tvShow","tvShowCollection","tvSeasons","tvEpisodes"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 app.use(express.static(__dirname + '/static'));
@@ -155,7 +155,7 @@ app.get('/tvShows/:id/seasons/:seasonNum/episodes/:episodeNum', function (req, r
 	var seasonNum = parseInt(req.params.seasonNum);
 	var episodeNum = parseInt(req.params.episodeNum);
 
-	db.episodes.find({tvShowID : tvShowId, season_number: seasonNum, episode_number : episodeNum}, function(err,data){
+	db.tvEpisodes.find({tvShowID : tvShowId, season_number: seasonNum, episode_number : episodeNum}, function(err,data){
 		res.send(JSON.stringify({tvShowEpisodeDetails : data[0]} ));
 	});
 });
