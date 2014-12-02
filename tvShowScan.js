@@ -1,7 +1,34 @@
 var mdb = require('moviedb')('fb92666a2288e824aaa575b983c6e182');
-var db = require('./db.js');
+var db = require('./tvDB.js');
+var fs = require('fs');
+var exec = require('child_process').exec ;
 
 
+function getFolderPath() {
+    var folderPath = "";
+    process.argv.forEach(function (val, index, array) {
+        if (index == 2) {
+            folderPath = val;
+        }
+    });
+    folder = folderPath;
+    return folderPath;
+}
+
+function printFileNamesInFolder(folderPath) {
+    fs.readdir(folderPath, readdirCallback);
+}
+
+function readdirCallback(err, files) {
+    if (err !== null) {
+        //console.log(err);
+    } else {
+        for (var i in files) {
+            //console.log(files[i]);
+            parseTvShow(files[i]);
+        }
+    }
+}
 
 /*
 	TV Show should have the format of 
@@ -9,6 +36,7 @@ var db = require('./db.js');
 	And should be kept in separate directory (TVSHOWS)
 */
 function parseTvShow(fileName) {
+	console.log("TvShow Name::",fileName);
 
 	//fileName = fileName.toLowerCase();
 	var tvShowRegex = "([^\-]+)\- +s([0-9]+)e([0-9]+)\.(.+)";
@@ -23,7 +51,6 @@ function parseTvShow(fileName) {
 		var tvShowEpisode = tvshow[3];
 		var tvshowExt = tvshow[4];
 		var tvShowID = "";
-
 	
 		mdb.searchTv({query: tvshowName }, function(err, res){
 			if(res.results.length > 0) {
@@ -42,6 +69,15 @@ function parseTvShow(fileName) {
 					tvShowEpisode : parseInt(tvShowEpisode)
 
 				};
+
+				/*
+                    Stores a soft link of the tv Show source into the
+                    static folder in the web server for video streaming
+                */
+                var source = folderPath + "/" + fileName;
+                var dest = 'static/tvShows/' + tvShowInfo.tvShowID + "_" + tvShowInfo.tvShowSeason + "_" + tvShowInfo.tvShowEpisode ;
+                child = exec('ln -s "' + source + '" "' + dest + '"');
+
 
 				db.saveTvCollection(tvShowInfo);
 
@@ -78,6 +114,10 @@ function parseTvShow(fileName) {
 	}
 }
 
+var folderPath = getFolderPath();
+printFileNamesInFolder(folderPath);
+
+/*
 parseTvShow("The Big Bang Theory - s01e01.mkv")
 parseTvShow("The Big Bang Theory - s02e01.mkv")
 parseTvShow("The Big Bang Theory - s02e04.mkv")
@@ -87,3 +127,4 @@ parseTvShow("Castle - s04e02.mkv");
 parseTvShow("Castle - s02e03.mkv");
 parseTvShow("Castle - s03e03.mkv");
 parseTvShow("Castle - s04e03.mkv");
+*/

@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var databaseUrl = "moviedb"; // "username:password@example.com/mydb"
-var collections = ["movie","genre","translations","reviews","trailers","tvShow","tvShowCollection","tvSeasons"];
+var collections = ["movie","genre","translations","reviews","trailers","tvShow","tvShowCollection","tvSeasons","episodes"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 app.use(express.static(__dirname + '/static'));
@@ -126,8 +126,6 @@ app.get('/tvShows/:id/seasons', function (req, res) {
 	});
 });
 
-
-
 app.get('/tvShows/:id/seasons/:seasonNum', function (req, res) {
 
 	var tvShowId = parseInt(req.params.id);
@@ -157,9 +155,8 @@ app.get('/tvShows/:id/seasons/:seasonNum/episodes/:episodeNum', function (req, r
 	var seasonNum = parseInt(req.params.seasonNum);
 	var episodeNum = parseInt(req.params.episodeNum);
 
-	db.tvSeasons.find({tvShowID : tvShowId, season_number: seasonNum}, function(err,data){
-		console.log(data[0].tvShowEpisodes.episodes_info.season_info.episodes)
-		//res.send(JSON.stringify({tvShowEpisodes : tv_episodes_info} ));
+	db.episodes.find({tvShowID : tvShowId, season_number: seasonNum, episode_number : episodeNum}, function(err,data){
+		res.send(JSON.stringify({tvShowEpisodeDetails : data[0]} ));
 	});
 });
 

@@ -167,19 +167,27 @@ function getTvShowsEpisodesList() {
 }
 
 function getTvEpisodeDetails() {
-	var id = window.location.href.split("#")[1];
-	var url = "/movies/" + id;
-	 
-	var videoUrl = '/tvShows/abc' ;
+
+	var params = window.location.href.split("?")[1];
+	var tvShowId = params.split("&")[0].split("=")[1];
+	var tvSeasonNum = params.split("&")[1].split("=")[1];
+	var tvEpisodeNum = params.split("&")[2].split("=")[1];
+
+	var url = "/tvShows/" + tvShowId + "/seasons/" + tvSeasonNum + "/episodes/" + tvEpisodeNum;
+	var id = tvShowId + "_" + tvSeasonNum + "_" + tvEpisodeNum;
+	var videoUrl = '/tvShows/' + id ;
+
+	var posterBaseUrl = "http://image.tmdb.org/t/p/w300/";
 
 	$.get(url,function(data){
 		console.log("data", data);
-		var movies = JSON.parse(data);
-		movies = movies.movie_details;
-		$("#tvDesc").html(movies.vidoeDesc);
-		$("#tvShow").html('<source src="' + videoUrl + '"></source>');
-		$('#tvShow').get(0).play();
-		console.log("Dec....",movies.vidoeDesc);
+		var tvShows = JSON.parse(data);
+		var tvShow = tvShows.tvShowEpisodeDetails;
+		$("#tvShowPoster").attr('src', posterBaseUrl + tvShow.still_path);
+		$("#tvShowName").html(tvShow.name);
+		$("#tvShowOverview").html(tvShow.overview);
+		$("#tvShow").html('<source src="' +  videoUrl + '"></source>');
+		$("#tvShowAirDate").html('Air Date ::' + tvShow.air_date);
 	});
 }
 
